@@ -41,6 +41,7 @@ class Video(_Video[D]):
 
         video.name = name
         video.attrs = dict(node.attrs)
+
         return video
 
     def _get_frames(self, idx: int) -> npt.NDArray[np.uint8]:
@@ -54,6 +55,14 @@ class Video(_Video[D]):
     @property
     def init_bbox(self) -> npt.NDArray[np.float32]:
         return self._get_gt_bboxes(0)
+
+    @property
+    def width(self) -> int:
+        return self._get_frames(0).shape[1]
+    
+    @property
+    def height(self) -> int:
+        return self._get_frames(0).shape[0]
 
     def __len__(self) -> int:
         return self._frames.shape[0]
