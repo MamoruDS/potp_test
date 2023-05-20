@@ -1,10 +1,10 @@
 from ..dataset import Dataset
 from ..video import Video
 from ..types import Path
-from typing import TypeVar
+from typing import Type, TypeVar
 
 ND = TypeVar("ND", bound="_NFSDataset")
-
+NV = TypeVar("NV", bound="_NFSVideo")
 
 class _NFSVideo(Video[ND]):
     ...
@@ -18,16 +18,16 @@ class NFS240Video(_NFSVideo["NFS240Dataset"]):
     ...
 
 
-class _NFSDataset(Dataset[_NFSVideo]):
-    def __init__(self, name: str, h5fp: Path) -> None:
-        super().__init__(name, h5fp, _NFSVideo)
+class _NFSDataset(Dataset[NV]):
+    def __init__(self, name: str, h5fp: Path, video_cls: Type[NV]) -> None:
+        super().__init__(name, h5fp, video_cls)
 
 
-class NFS30Dataset(Dataset[NFS30Video]):
+class NFS30Dataset(_NFSDataset[NFS30Video]):
     def __init__(self, h5fp: Path) -> None:
-        super().__init__("NFS30", h5fp, NFS30Dataset)
+        super().__init__("NFS30", h5fp, NFS30Video)
 
 
-class NFS240Dataset(Dataset[NFS240Video]):
+class NFS240Dataset(NFS240Video):
     def __init__(self, h5fp: Path) -> None:
-        super().__init__("NFS240", h5fp, NFS240Dataset)
+        super().__init__("NFS240", h5fp, NFS240Video)
