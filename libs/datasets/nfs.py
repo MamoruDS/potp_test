@@ -28,6 +28,6 @@ class NFS30Dataset(_NFSDataset[NFS30Video]):
         super().__init__("NFS30", h5fp, NFS30Video)
 
 
-class NFS240Dataset(NFS240Video):
+class NFS240Dataset(_NFSDataset[NFS240Video]):
     def __init__(self, h5fp: Path) -> None:
         super().__init__("NFS240", h5fp, NFS240Video)
