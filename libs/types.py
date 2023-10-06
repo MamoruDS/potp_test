@@ -71,7 +71,7 @@ class Video(Protocol, Generic[D, A]):
     _dataset: D
     _node: h5py.Group
     _frames: h5py.Dataset
-    _gt_bboxes: h5py.Dataset
+    _gt: h5py.Dataset
 
     @classmethod
     def create(cls, dataset: D, node: h5py.Group, name: str) -> Self:
