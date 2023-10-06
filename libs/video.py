@@ -1,4 +1,5 @@
-from typing import Iterator
+from enum import Flag
+from typing import Iterator, TypeVar
 
 import cv2
 import h5py
@@ -7,11 +8,13 @@ import numpy.typing as npt
 
 from .types import Video as _Video, VideoItem, D
 
+A = TypeVar("A", bound=Flag)
 
-class Video(_Video[D]):
+
+class Video(_Video[D, A]):
     # gt_bboxes: list[npt.NDArray[np.float32]]
     name: str
-    attrs: dict
+    attrs: A | None
 
     _dataset: D
     _node: h5py.Group
@@ -42,7 +45,14 @@ class Video(_Video[D]):
             )
 
         video.name = name
-        video.attrs = dict(node.attrs)
+        video.attrs = None
+        attrs = node.attrs.get("0")
+        for a_name in attrs:
+            attr = dataset.attr.get_attribute(a_name)
+            if video.attrs is None:
+                video.attrs = attr
+            else:
+                video.attrs |= attr
 
         return video
 
@@ -61,7 +71,7 @@ class Video(_Video[D]):
     @property
     def width(self) -> int:
         return self._get_frame(0).shape[1]
-    
+
     @property
     def height(self) -> int:
         return self._get_frame(0).shape[0]

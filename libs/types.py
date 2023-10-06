@@ -1,3 +1,4 @@
+from enum import Flag
 from os import PathLike
 from typing import (
     Generic,
@@ -8,7 +9,7 @@ from typing import (
     TypeVar,
     Union,
 )
-from typing_extensions import Self
+from typing_extensions import Self, NoReturn
 
 import h5py
 import numpy as np
@@ -17,16 +18,28 @@ import numpy.typing as npt
 Path = Union[str, PathLike]
 VideoItem = tuple[npt.NDArray[np.uint8], npt.NDArray[np.float32]]
 
+A = TypeVar("A", bound=Flag)
 V = TypeVar("V", bound="Video")
 D = TypeVar("D", bound="Dataset")
 
 
-class Dataset(Protocol, Generic[V]):
+class Attribute(Protocol, Generic[A]):
+    flag_cls: Type[A]
+    names_map: dict[str, A]
+
+    def get_attribute(self, name: str) -> A | NoReturn:
+        ...
+
+
+class Dataset(Protocol, Generic[V, A]):
     name: str
     video_vls: Type[V]
+    attr: Attribute[A]
     _h5: Optional[h5py.File]
 
-    def __init__(self, name: str, h5fp: Path, video_cls: Type[V]) -> None:
+    def __init__(
+        self, name: str, h5fp: Path, video_cls: Type[V], attr: Type[A]
+    ) -> None:
         ...
 
     def _get_video(self, v_name: str) -> V:
@@ -42,9 +55,9 @@ class Dataset(Protocol, Generic[V]):
         ...
 
 
-class Video(Protocol, Generic[D]):
+class Video(Protocol, Generic[D, A]):
     name: str
-    attrs: dict
+    attrs: A | None
 
     _dataset: D
     _node: h5py.Group
