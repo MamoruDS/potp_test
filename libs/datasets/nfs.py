@@ -1,10 +1,12 @@
-from ..dataset import Dataset
-from ..video import Video
-from ..types import Path
 from typing import Type, TypeVar
+
+from ..dataset import Dataset
+from ..types import Path
+from ..video import Video
 
 ND = TypeVar("ND", bound="_NFSDataset")
 NV = TypeVar("NV", bound="_NFSVideo")
+
 
 class _NFSVideo(Video[ND]):
     ...

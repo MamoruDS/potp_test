@@ -1,8 +1,4 @@
-import h5py
-import numpy as np
-import numpy.typing as npt
 from os import PathLike
-# from abc import abstractmethod
 from typing import (
     Generic,
     Iterator,
@@ -14,7 +10,13 @@ from typing import (
 )
 from typing_extensions import Self
 
+import h5py
+import numpy as np
+import numpy.typing as npt
+
 Path = Union[str, PathLike]
+VideoItem = tuple[npt.NDArray[np.uint8], npt.NDArray[np.float32]]
+
 V = TypeVar("V", bound="Video")
 D = TypeVar("D", bound="Dataset")
 
@@ -38,9 +40,6 @@ class Dataset(Protocol, Generic[V]):
 
     def __iter__(self) -> Iterator[V]:
         ...
-
-
-VideoItem = tuple[npt.NDArray[np.uint8], npt.NDArray[np.float32]]
 
 
 class Video(Protocol, Generic[D]):

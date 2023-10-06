@@ -1,7 +1,8 @@
-from ..dataset import Dataset
-from ..video import Video
-from ..types import Path
 from typing import TypedDict
+
+from ..dataset import Dataset
+from ..types import Path
+from ..video import Video
 
 
 class VOTVideoAttrs(TypedDict):

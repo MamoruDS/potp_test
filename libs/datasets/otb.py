@@ -1,6 +1,6 @@
 from ..dataset import Dataset
-from ..video import Video
 from ..types import Path
+from ..video import Video
 
 
 class OTB100Video(Video["OTB100Dataset"]):

@@ -1,7 +1,9 @@
+from typing import Iterator, Optional, Type, Union
+
 import h5py
 import os
+
 from .types import Dataset as _Dataset, Path, V
-from typing import Iterator, Optional, Type, Union
 
 
 class Dataset(_Dataset[V]):

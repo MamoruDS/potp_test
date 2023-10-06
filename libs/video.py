@@ -1,9 +1,11 @@
+from typing import Iterator
+
 import cv2
 import h5py
 import numpy as np
 import numpy.typing as npt
+
 from .types import Video as _Video, VideoItem, D
-from typing import Iterator
 
 
 class Video(_Video[D]):
