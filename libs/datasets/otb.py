@@ -6,7 +6,8 @@ from ..types import Path
 from ..video import Video
 
 
-class Attribute(Flag):
+class OTBAttr(Flag):
+    NONE = 0
     IV = auto()
     """Illumination Variation: the illumination in the target region is significantly changed"""
     SV = auto()
@@ -32,26 +33,29 @@ class Attribute(Flag):
 
 
 _ATTR_NAMES_MAP = {
-    "Illumination Variation": Attribute.IV,
-    "Scale Variation": Attribute.SV,
-    "Occlusion": Attribute.OCC,
-    "Deformation": Attribute.DEF,
-    "Motion Blur": Attribute.MB,
-    "Fast Motion": Attribute.FM,
-    "In-Plane Rotation": Attribute.IPR,
-    "Out-of-Plane Rotation": Attribute.OPR,
-    "Out-of-View": Attribute.OV,
-    "Background Clutters": Attribute.BC,
-    "Low Resolution": Attribute.LR,
+    "Illumination Variation": OTBAttr.IV,
+    "Scale Variation": OTBAttr.SV,
+    "Occlusion": OTBAttr.OCC,
+    "Deformation": OTBAttr.DEF,
+    "Motion Blur": OTBAttr.MB,
+    "Fast Motion": OTBAttr.FM,
+    "In-Plane Rotation": OTBAttr.IPR,
+    "Out-of-Plane Rotation": OTBAttr.OPR,
+    "Out-of-View": OTBAttr.OV,
+    "Background Clutters": OTBAttr.BC,
+    "Low Resolution": OTBAttr.LR,
 }
 
 
-class OTB100Video(Video["OTB100Dataset", Attribute]):
+class OTB100Video(Video["OTB100Dataset", OTBAttr]):
     ...
 
 
-class OTB100Dataset(Dataset["OTB100Video", Attribute]):
+class OTB100Dataset(Dataset["OTB100Video", OTBAttr]):
     def __init__(self, h5fp: Path) -> None:
         super().__init__(
-            "OTB100", h5fp, OTB100Video, _Attr(Attribute, _ATTR_NAMES_MAP)
+            "OTB100",
+            h5fp,
+            OTB100Video,
+            _Attr(OTBAttr, OTBAttr.NONE, _ATTR_NAMES_MAP),
         )
