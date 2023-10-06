@@ -6,7 +6,8 @@ from ..types import Path
 from ..video import Video
 
 
-class Attribute(Flag):
+class LaSOTAttr(Flag):
+    NONE = 0
     CM = auto()
     """Camera Motion: abrupt motion of the camera"""
     VC = auto()
@@ -38,29 +39,32 @@ class Attribute(Flag):
 
 
 _ATTR_NAMES_MAP = {
-    "Camera Motion": Attribute.CM,
-    "View Change": Attribute.VC,
-    "Rotation": Attribute.ROT,
-    "Scale Variation": Attribute.SV,
-    "Deformation": Attribute.DEF,
-    "Background Clutter": Attribute.BC,
-    "Partial Occlusion": Attribute.POC,
-    "Full Occlusion": Attribute.FOC,
-    "Motion Blur": Attribute.MB,
-    "Illumination Variation": Attribute.IV,
-    "Aspect Ratio Change": Attribute.ARC,
-    "Out-of-View": Attribute.OV,
-    "Low Resolution": Attribute.LR,
-    "Fast Motion": Attribute.FM,
+    "Camera Motion": LaSOTAttr.CM,
+    "View Change": LaSOTAttr.VC,
+    "Rotation": LaSOTAttr.ROT,
+    "Scale Variation": LaSOTAttr.SV,
+    "Deformation": LaSOTAttr.DEF,
+    "Background Clutter": LaSOTAttr.BC,
+    "Partial Occlusion": LaSOTAttr.POC,
+    "Full Occlusion": LaSOTAttr.FOC,
+    "Motion Blur": LaSOTAttr.MB,
+    "Illumination Variation": LaSOTAttr.IV,
+    "Aspect Ratio Change": LaSOTAttr.ARC,
+    "Out-of-View": LaSOTAttr.OV,
+    "Low Resolution": LaSOTAttr.LR,
+    "Fast Motion": LaSOTAttr.FM,
 }
 
 
-class LaSOTVideo(Video["LaSOTDataset", Attribute]):
+class LaSOTVideo(Video["LaSOTDataset", LaSOTAttr]):
     ...
 
 
-class LaSOTDataset(Dataset["LaSOTVideo", Attribute]):
+class LaSOTDataset(Dataset["LaSOTVideo", LaSOTAttr]):
     def __init__(self, h5fp: Path) -> None:
         super().__init__(
-            "LaSOT", h5fp, LaSOTVideo, _Attr(Attribute, _ATTR_NAMES_MAP)
+            "LaSOT",
+            h5fp,
+            LaSOTVideo,
+            _Attr(LaSOTAttr, LaSOTAttr.NONE, _ATTR_NAMES_MAP),
         )
