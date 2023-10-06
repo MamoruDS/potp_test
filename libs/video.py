@@ -6,7 +6,7 @@ import h5py
 import numpy as np
 import numpy.typing as npt
 
-from .types import Video as _Video, VideoItem, D
+from .types import Attribute, Video as _Video, VideoItem, D
 
 A = TypeVar("A", bound=Flag)
 
@@ -20,6 +20,19 @@ class Video(_Video[D, A]):
     _node: h5py.Group
     _frames: h5py.Dataset
     _gt_bboxes: h5py.Dataset
+
+    def load_attributes(self, attrmgr: h5py.AttributeManager) -> A | None:
+        if self._dataset.attr is None:
+            return None
+        da: Attribute[A] = self._dataset.attr
+
+        loaded = self._dataset.attr.flag_none
+        attrs = attrmgr.get("0")
+        if attrs is not None:
+            for a_name in attrs:
+                loaded |= da.get_attribute(a_name)
+
+        return loaded
 
     @classmethod
     def create(cls, dataset: D, node: h5py.Group, name: str):
@@ -45,16 +58,7 @@ class Video(_Video[D, A]):
             )
 
         video.name = name
-        video.attrs = None
-
-        if dataset.attr is not None:
-            attrs = node.attrs.get("0")
-            for a_name in attrs:
-                attr = dataset.attr.get_attribute(a_name)
-                if video.attrs is None:
-                    video.attrs = attr
-                else:
-                    video.attrs |= attr
+        video.attrs = video.load_attributes(node.attrs)
 
         return video
 
