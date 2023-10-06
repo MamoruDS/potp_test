@@ -1,21 +1,34 @@
+from enum import Flag
+from typing import Iterator, Optional, Type, TypeVar, Union
+
 import h5py
 import os
-from .types import Dataset as _Dataset, Path, V
-from typing import Iterator, Optional, Type, Union
+
+from .types import Attribute, Dataset as _Dataset, Path, V
+
+A = TypeVar("A", bound=Flag)
 
 
-class Dataset(_Dataset[V]):
+class Dataset(_Dataset[V, A]):
     name: str
     video_vls: Type[V]
-    _h5: Optional[h5py.File]
+    attr: Attribute[A] | None
+    _h5: h5py.File | None
     _videos: dict[str, V]
 
-    def __init__(self, name: str, h5fp: Path, video_cls: Type[V]) -> None:
+    def __init__(
+        self,
+        name: str,
+        h5fp: Path,
+        video_cls: Type[V],
+        attr: Attribute[A] | None = None,
+    ) -> None:
         if not os.path.exists(h5fp):
             raise FileNotFoundError(f"{h5fp} does not exist")
 
         self.name = name
         self.video_vls = video_cls
+        self.attr = attr
         self._h5 = h5py.File(h5fp, "r")
         self._videos = {}
 

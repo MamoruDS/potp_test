@@ -1,20 +1,38 @@
+from enum import Flag
+from typing import Iterator, TypeVar
+
 import cv2
 import h5py
 import numpy as np
 import numpy.typing as npt
-from .types import Video as _Video, VideoItem, D
-from typing import Iterator
+
+from .types import Attribute, Video as _Video, VideoItem, D
+
+A = TypeVar("A", bound=Flag)
 
 
-class Video(_Video[D]):
+class Video(_Video[D, A]):
     # gt_bboxes: list[npt.NDArray[np.float32]]
     name: str
-    attrs: dict
+    attrs: A | None
 
     _dataset: D
     _node: h5py.Group
     _frames: h5py.Dataset
     _gt_bboxes: h5py.Dataset
+
+    def load_attributes(self, attrmgr: h5py.AttributeManager) -> A | None:
+        if self._dataset.attr is None:
+            return None
+        da: Attribute[A] = self._dataset.attr
+
+        loaded = da.flag_none
+        attrs = attrmgr.get("0")
+        if attrs is not None:
+            for a_name in attrs:
+                loaded |= da.get_attribute(a_name)
+
+        return loaded
 
     @classmethod
     def create(cls, dataset: D, node: h5py.Group, name: str):
@@ -40,7 +58,7 @@ class Video(_Video[D]):
             )
 
         video.name = name
-        video.attrs = dict(node.attrs)
+        video.attrs = video.load_attributes(node.attrs)
 
         return video
 
@@ -59,7 +77,7 @@ class Video(_Video[D]):
     @property
     def width(self) -> int:
         return self._get_frame(0).shape[1]
-    
+
     @property
     def height(self) -> int:
         return self._get_frame(0).shape[0]

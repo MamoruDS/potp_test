@@ -1,24 +1,80 @@
+from enum import Flag, auto
+
+import h5py
+import numpy as np
+import numpy.typing as npt
+
+from ..attribute import Attribute as _Attr
 from ..dataset import Dataset
-from ..video import Video
 from ..types import Path
-from typing import TypedDict
+from ..video import Video
 
 
-class VOTVideoAttrs(TypedDict):
-    all: list[bool]
-    camera_motion: list[bool]
-    illumination_change: list[bool]
-    motion_change: list[bool]
-    size_change: list[bool]
-    occlusion: list[bool]
+class FrameAttrs:
+    camera_motion: npt.NDArray[np.bool_]
+    illum_change: npt.NDArray[np.bool_]
+    motion_change: npt.NDArray[np.bool_]
+    occlusion: npt.NDArray[np.bool_]
+    size_change: npt.NDArray[np.bool_]
 
 
-class VotVideo(Video["VotDataset"]):
+class VOTAttr(Flag):
+    NONE = 0
+    CAMERA_MOTION = auto()
+    ILLUM_CHANGE = auto()
+    MOTION_CHANGE = auto()
+    OCCLUSION = auto()
+    SIZE_CHANGE = auto()
+
+
+_ATTR_NAMES_MAP = {
+    # "Camera Motion": Attribute.CAMERA_MOTION,
+    # "Illumination Change": Attribute.ILLUM_CHANGE,
+    # "Motion Change": Attribute.MOTION_CHANGE,
+    # "Occlusion": Attribute.OCCLUSION,
+    # "Size Change": Attribute.SIZE_CHANGE,
+}
+
+
+class VotVideo(Video["VotDataset", VOTAttr]):
     """Legacy VOT ST Video"""
 
-    ...
+    def load_attributes(self, attrmgr: h5py.AttributeManager) -> VOTAttr:
+        # TODO:
+        attrs = VOTAttr.NONE
+
+        camera_motion = attrmgr.get("camera_motion")
+        if camera_motion is not None:
+            if np.any(camera_motion):
+                attrs |= VOTAttr.CAMERA_MOTION
+        illum_change = attrmgr.get("illum_change")
+        if illum_change is not None:
+            if np.any(illum_change):
+                attrs |= VOTAttr.ILLUM_CHANGE
+        motion_change = attrmgr.get("motion_change")
+        if motion_change is not None:
+            if np.any(motion_change):
+                attrs |= VOTAttr.MOTION_CHANGE
+        occlusion = attrmgr.get("occlusion")
+        if occlusion is not None:
+            if np.any(occlusion):
+                attrs |= VOTAttr.OCCLUSION
+        size_change = attrmgr.get("size_change")
+        if size_change is not None:
+            if np.any(size_change):
+                attrs |= VOTAttr.SIZE_CHANGE
+
+        loaded = super().load_attributes(attrmgr)
+        if loaded is not None:
+            attrs |= loaded
+        return attrs
 
 
-class VotDataset(Dataset[VotVideo]):
+class VotDataset(Dataset["VotVideo", VOTAttr]):
     def __init__(self, h5fp: Path) -> None:
-        super().__init__("VOT2019", h5fp, VotVideo)
+        super().__init__(
+            "VOT2019",
+            h5fp,
+            VotVideo,
+            _Attr(VOTAttr, VOTAttr.NONE, _ATTR_NAMES_MAP),
+        )
