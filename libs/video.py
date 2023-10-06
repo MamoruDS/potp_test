@@ -26,7 +26,7 @@ class Video(_Video[D, A]):
             return None
         da: Attribute[A] = self._dataset.attr
 
-        loaded = self._dataset.attr.flag_none
+        loaded = da.flag_none
         attrs = attrmgr.get("0")
         if attrs is not None:
             for a_name in attrs:
