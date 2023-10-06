@@ -46,13 +46,15 @@ class Video(_Video[D, A]):
 
         video.name = name
         video.attrs = None
-        attrs = node.attrs.get("0")
-        for a_name in attrs:
-            attr = dataset.attr.get_attribute(a_name)
-            if video.attrs is None:
-                video.attrs = attr
-            else:
-                video.attrs |= attr
+
+        if dataset.attr is not None:
+            attrs = node.attrs.get("0")
+            for a_name in attrs:
+                attr = dataset.attr.get_attribute(a_name)
+                if video.attrs is None:
+                    video.attrs = attr
+                else:
+                    video.attrs |= attr
 
         return video
 

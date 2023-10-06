@@ -12,12 +12,16 @@ A = TypeVar("A", bound=Flag)
 class Dataset(_Dataset[V, A]):
     name: str
     video_vls: Type[V]
-    attr: Attribute[A]
-    _h5: Optional[h5py.File]
+    attr: Attribute[A] | None
+    _h5: h5py.File | None
     _videos: dict[str, V]
 
     def __init__(
-        self, name: str, h5fp: Path, video_cls: Type[V], attr: Attribute[A]
+        self,
+        name: str,
+        h5fp: Path,
+        video_cls: Type[V],
+        attr: Attribute[A] | None = None,
     ) -> None:
         if not os.path.exists(h5fp):
             raise FileNotFoundError(f"{h5fp} does not exist")

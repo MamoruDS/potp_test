@@ -23,6 +23,10 @@ V = TypeVar("V", bound="Video")
 D = TypeVar("D", bound="Dataset")
 
 
+class NoAttribute(Flag):
+    ...
+
+
 class Attribute(Protocol, Generic[A]):
     flag_cls: Type[A]
     names_map: dict[str, A]
@@ -34,11 +38,15 @@ class Attribute(Protocol, Generic[A]):
 class Dataset(Protocol, Generic[V, A]):
     name: str
     video_vls: Type[V]
-    attr: Attribute[A]
-    _h5: Optional[h5py.File]
+    attr: Attribute[A] | None
+    _h5: h5py.File | None
 
     def __init__(
-        self, name: str, h5fp: Path, video_cls: Type[V], attr: Type[A]
+        self,
+        name: str,
+        h5fp: Path,
+        video_cls: Type[V],
+        attr: Type[A] | None = None,
     ) -> None:
         ...
 
