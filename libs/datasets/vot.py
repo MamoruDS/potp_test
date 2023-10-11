@@ -39,6 +39,26 @@ _ATTR_NAMES_MAP = {
 class VotVideo(Video["VotDataset", VOTAttr]):
     """Legacy VOT ST Video"""
 
+    def get_tagged(self, tag: VOTAttr) -> npt.NDArray[np.uint8]:
+        attrmgr: h5py.AttributeManager = self._node.attrs
+        tags = None
+        if tag == VOTAttr.CAMERA_MOTION:
+            tags = attrmgr.get("camera_motion")
+        elif tag == VOTAttr.ILLUM_CHANGE:
+            tags = attrmgr.get("illum_change")
+        elif tag == VOTAttr.MOTION_CHANGE:
+            tags = attrmgr.get("motion_change")
+        elif tag == VOTAttr.OCCLUSION:
+            tags = attrmgr.get("occlusion")
+        elif tag == VOTAttr.SIZE_CHANGE:
+            tags = attrmgr.get("size_change")
+        else:
+            raise KeyError
+
+        if tags is None:
+            raise ValueError
+        return tags
+
     def load_attributes(self, attrmgr: h5py.AttributeManager) -> VOTAttr:
         # TODO:
         attrs = VOTAttr.NONE
